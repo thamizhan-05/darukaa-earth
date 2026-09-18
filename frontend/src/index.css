@@ -1,0 +1,151 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* ─── Reset & Base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #0D1117;
+  color: #E6EDF3;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #0D1117;
+}
+
+#root { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ─── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #161B22; }
+::-webkit-scrollbar-thumb { background: #30363D; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #444C56; }
+
+/* ─── Mapbox GL overrides ───────────────────────────────────────── */
+.mapboxgl-map { font-family: 'Inter', sans-serif !important; }
+.mapboxgl-popup-content {
+  background: #1C2333 !important;
+  color: #E6EDF3 !important;
+  border: 1px solid #30363D !important;
+  border-radius: 10px !important;
+  padding: 12px 16px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.mapboxgl-popup-tip { border-top-color: #1C2333 !important; border-bottom-color: #1C2333 !important; }
+.mapboxgl-ctrl-group { background: #161B22 !important; border: 1px solid #30363D !important; }
+.mapboxgl-ctrl-group button { background: #161B22 !important; }
+.mapboxgl-ctrl-group button:hover { background: #1C2333 !important; }
+.mapboxgl-ctrl button .mapboxgl-ctrl-icon { filter: invert(0.8) !important; }
+.mapbox-gl-draw_ctrl-draw-btn { background: #161B22 !important; color: #E6EDF3 !important; }
+
+/* ─── Chart.js canvas ───────────────────────────────────────────── */
+canvas { max-width: 100%; }
+
+/* ─── Animations ─────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+.animate-slide-up { animation: slideUp 0.3s ease-out; }
+
+/* ─── Skeleton loader ───────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #1C2333 25%, #21262D 50%, #1C2333 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+/* ─── Focus ring ────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #3FB950;
+  outline-offset: 2px;
+}
+
+/* ─── Selection ─────────────────────────────────────────────────── */
+::selection { background: rgba(63, 185, 80, 0.25); color: #E6EDF3; }
+
+/* ─── Utility classes ───────────────────────────────────────────── */
+.glass {
+  background: rgba(22, 27, 34, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(48, 54, 61, 0.6);
+}
+
+.card {
+  background: #161B22;
+  border: 1px solid #30363D;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.card-elevated {
+  background: #1C2333;
+  border: 1px solid #30363D;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.text-gradient-green {
+  background: linear-gradient(135deg, #3FB950 0%, #56D364 50%, #39C5CF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-emerald {
+  background: linear-gradient(135deg, #FFFFFF 0%, #E6EDF3 60%, #3FB950 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glow-emerald {
+  box-shadow: 0 0 35px -5px rgba(63, 185, 80, 0.25);
+}
+
+.glow-teal {
+  box-shadow: 0 0 35px -5px rgba(57, 197, 207, 0.25);
+}
+
+.hero-mesh-bg {
+  background-image: 
+    radial-gradient(at 20% 25%, rgba(63, 185, 80, 0.12) 0px, transparent 50%),
+    radial-gradient(at 80% 10%, rgba(57, 197, 207, 0.10) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(31, 111, 235, 0.08) 0px, transparent 50%);
+}
+
+.hero-gradient-overlay {
+  background: linear-gradient(180deg, rgba(13, 17, 23, 0.3) 0%, rgba(13, 17, 23, 0.8) 70%, #0D1117 100%);
+}
+
+.glass-panel {
+  background: rgba(22, 27, 34, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(48, 54, 61, 0.7);
+}
+
+.glass-card {
+  background: rgba(28, 35, 51, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+}
