@@ -20,7 +20,6 @@
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
     "clsx": "^2.1.1",
-    "darukaa-earth": "file:..",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.396.0",
     "mapbox-gl": "^3.4.0",
