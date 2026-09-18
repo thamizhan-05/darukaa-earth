@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Globe,
@@ -19,13 +19,8 @@ import {
   MapPin,
   ChevronRight,
 } from 'lucide-react'
-import mapboxgl from 'mapbox-gl'
-import { getMapboxToken, getResolvedMapStyle } from '@/config/mapbox'
-
-const _initToken = getMapboxToken()
-if (_initToken) {
-  mapboxgl.accessToken = _initToken
-}
+import { MapGL } from '@/components/map/MapGL'
+import type { SiteGeoJSONFeature } from '@/types/site'
 
 // Real Western Ghats & Indian Conservation Reserves
 const FEATURED_RESERVES = [
@@ -128,32 +123,13 @@ const TELEMETRY_STREAM = [
   },
 ]
 
-export default function LandingPage() {
-  const [activeTab, setActiveTab] = useState<'spatial' | 'weather' | 'carbon'>('spatial')
-  const mapContainerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!mapContainerRef.current) return
-
-    const t = getMapboxToken()
-    if (t) {
-      mapboxgl.accessToken = t
-    }
-
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: getResolvedMapStyle('satellite'),
-      center: [76.441, 11.086], // Silent Valley
-      zoom: 12.2,
-      pitch: 45,
-      bearing: -20,
-      interactive: false,
-      attributionControl: false,
-    })
-
-    map.on('load', () => {
-      // Natural polygon coordinates matching Silent Valley
-      const silentValleyPoly = [
+const SILENT_VALLEY_FEATURE: SiteGeoJSONFeature = {
+  type: 'Feature',
+  id: 'silent-valley-res',
+  geometry: {
+    type: 'Polygon',
+    coordinates: [
+      [
         [76.50374, 11.083],
         [76.48873, 11.10031],
         [76.473, 11.1129],
@@ -169,44 +145,19 @@ export default function LandingPage() {
         [76.47924, 11.04707],
         [76.49029, 11.06511],
         [76.50374, 11.083],
-      ]
+      ],
+    ],
+  },
+  properties: {
+    name: 'Silent Valley National Park (Western Ghats Core)',
+    area_hectares: 23752.0,
+    status: 'ACTIVE',
+    project_id: 'p-western-ghats',
+  },
+}
 
-      map.addSource('hero-reserve', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: { name: 'Silent Valley National Park' },
-          geometry: {
-            type: 'Polygon',
-            coordinates: [silentValleyPoly],
-          },
-        },
-      })
-
-      map.addLayer({
-        id: 'hero-reserve-fill',
-        type: 'fill',
-        source: 'hero-reserve',
-        paint: {
-          'fill-color': '#10B981',
-          'fill-opacity': 0.28,
-        },
-      })
-
-      map.addLayer({
-        id: 'hero-reserve-line',
-        type: 'line',
-        source: 'hero-reserve',
-        paint: {
-          'line-color': '#34D399',
-          'line-width': 2.5,
-          'line-dasharray': [2, 1],
-        },
-      })
-    })
-
-    return () => map.remove()
-  }, [])
+export default function LandingPage() {
+  const [activeTab, setActiveTab] = useState<'spatial' | 'weather' | 'carbon'>('spatial')
 
   return (
     <div className="min-h-screen bg-bg-base text-text-primary hero-mesh-bg selection:bg-accent-green/30">
@@ -486,9 +437,14 @@ export default function LandingPage() {
         {activeTab === 'spatial' && (
           <div className="card p-6 lg:p-8 bg-bg-surface border-border animate-fade-in">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 h-[360px] rounded-xl overflow-hidden border border-border relative">
-                <div ref={mapContainerRef} className="w-full h-full" />
-                <div className="absolute top-3 left-3 glass-panel px-3 py-1.5 rounded-md text-[11px] font-mono text-white flex items-center gap-1.5">
+              <div className="lg:col-span-7 h-[360px] min-h-[360px] rounded-xl overflow-hidden border border-border relative">
+                <MapGL
+                  features={[SILENT_VALLEY_FEATURE]}
+                  center={[76.441, 11.086]}
+                  zoom={12.2}
+                  className="w-full h-full min-h-[360px]"
+                />
+                <div className="absolute top-3 left-3 z-10 glass-panel px-3 py-1.5 rounded-md text-[11px] font-mono text-white flex items-center gap-1.5 pointer-events-none">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span>Silent Valley MultiPolygon · 15 Vertices</span>
                 </div>

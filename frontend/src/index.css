@@ -149,3 +149,24 @@ canvas { max-width: 100%; }
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(48, 54, 61, 0.8);
 }
+
+/* Ensure Mapbox GL canvas always renders with non-zero dimensions across all browsers */
+.mapboxgl-map {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 360px !important;
+  position: relative !important;
+}
+
+.mapboxgl-canvas-container {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 360px !important;
+}
+
+.mapboxgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 360px !important;
+  outline: none;
+}

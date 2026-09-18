@@ -675,9 +675,14 @@ export const MapGL = forwardRef<MapGLHandle, MapGLProps>(
 
     return (
       <div
-        className={`relative w-full h-full min-h-[380px] rounded-lg overflow-hidden ${className}`}
+        className={`relative w-full h-full min-h-[380px] rounded-lg overflow-hidden flex flex-col ${className}`}
+        style={{ width: '100%', height: '100%', minHeight: '380px' }}
       >
-        <div ref={containerRef} className="w-full h-full min-h-[380px]" />
+        <div
+          ref={containerRef}
+          className="w-full h-full min-h-[380px] flex-1"
+          style={{ width: '100%', height: '100%', minHeight: '380px' }}
+        />
       </div>
     )
   },
