@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '@/context/AuthContext'
+import toast from 'react-hot-toast'
 import {
   Globe,
   Leaf,
@@ -157,7 +159,15 @@ const SILENT_VALLEY_FEATURE: SiteGeoJSONFeature = {
 }
 
 export default function LandingPage() {
+  const navigate = useNavigate()
+  const { loginAsDemo } = useAuth()
   const [activeTab, setActiveTab] = useState<'spatial' | 'weather' | 'carbon'>('spatial')
+
+  const handleInstantDemo = () => {
+    loginAsDemo()
+    toast.success('Welcome to Darukaa.Earth Demo Workspace!')
+    navigate('/app/dashboard')
+  }
 
   return (
     <div className="min-h-screen bg-bg-base text-text-primary hero-mesh-bg selection:bg-accent-green/30">
@@ -198,24 +208,28 @@ export default function LandingPage() {
             <a href="#reserves" className="hover:text-text-primary transition-colors">
               Protected Reserves
             </a>
-            <a href="#telemetry" className="hover:text-text-primary transition-colors">
-              Remote Sensing
-            </a>
             <a href="#methodology" className="hover:text-text-primary transition-colors">
               Science Methodology
             </a>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={handleInstantDemo}
+              className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold text-xs shadow hover:brightness-110 flex items-center gap-1.5 border border-emerald-400/30 transition-all cursor-pointer"
+            >
+              <span>⚡ Instant Demo</span>
+            </button>
             <Link
               to="/login"
-              className="text-xs font-semibold text-text-secondary hover:text-text-primary px-3 py-2 rounded-md transition-colors"
+              className="text-xs font-semibold text-text-secondary hover:text-text-primary px-2.5 py-1.5 rounded-md transition-colors hidden sm:block"
             >
               Sign In
             </Link>
             <Link
               to="/app/map"
-              className="btn-primary text-xs py-2 px-4 flex items-center gap-2 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="btn-primary text-xs py-2 px-3.5 flex items-center gap-2 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               <Compass className="w-3.5 h-3.5" />
               <span>Launch Map</span>
@@ -254,6 +268,13 @@ export default function LandingPage() {
                 <span>Explore Interactive Map</span>
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
+              <button
+                type="button"
+                onClick={handleInstantDemo}
+                className="py-3 px-5 text-sm rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 text-white font-semibold shadow-lg hover:shadow-emerald-500/25 hover:brightness-110 transition-all flex items-center justify-center gap-2 border border-emerald-400/30 cursor-pointer"
+              >
+                <span>⚡ 1-Click Instant Demo</span>
+              </button>
               <Link
                 to="/login"
                 className="btn-secondary py-3 px-5 text-sm flex items-center justify-center gap-2 hover:bg-bg-elevated/80 transition-colors"
@@ -859,19 +880,17 @@ export default function LandingPage() {
               project developers using Darukaa.Earth.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-              <Link
-                to="/register"
-                className="btn-primary py-3 px-7 text-sm flex items-center gap-2 shadow-lg"
+              <button
+                type="button"
+                onClick={handleInstantDemo}
+                className="py-3 px-7 text-sm rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 text-white font-semibold shadow-lg hover:shadow-emerald-500/25 hover:brightness-110 transition-all flex items-center justify-center gap-2 border border-emerald-400/30 cursor-pointer"
               >
-                <span>Create Free Organization</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                to="/app/map"
-                className="btn-secondary py-3 px-6 text-sm flex items-center gap-2"
-              >
-                <Compass className="w-4 h-4 text-accent-green" />
+                <span>⚡ 1-Click Instant Demo</span>
+              </button>
+              <Link to="/app/map" className="btn-primary py-3 px-6 text-sm flex items-center gap-2">
+                <Compass className="w-4 h-4" />
                 <span>Explore Live Map</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
