@@ -3,13 +3,16 @@
  * Supports VITE_MAPBOX_ACCESS_TOKEN and MAPBOX_ACCESS_TOKEN environment variables.
  */
 export const getMapboxToken = (): string => {
-  const token =
+  const envToken =
     import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ||
     import.meta.env.MAPBOX_ACCESS_TOKEN ||
     (typeof globalThis !== 'undefined' && (globalThis as any).process?.env?.MAPBOX_ACCESS_TOKEN) ||
     ''
-  // If token is the placeholder demo string, treat as unset for native raster fallback
-  return token.includes('demo_public_token') ? '' : token
+
+  if (envToken && !envToken.includes('demo_public_token')) {
+    return envToken
+  }
+  return ''
 }
 
 /**
@@ -20,6 +23,7 @@ export const getMapboxToken = (): string => {
 export const REAL_SATELLITE_STYLE: any = {
   version: 8,
   name: 'Darukaa High-Res Satellite',
+  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
   sources: {
     'esri-world-imagery': {
       type: 'raster',
@@ -66,6 +70,7 @@ export const REAL_SATELLITE_STYLE: any = {
 export const DARK_CANVAS_STYLE: any = {
   version: 8,
   name: 'Darukaa Dark Canvas',
+  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
   sources: {
     'carto-dark': {
       type: 'raster',
@@ -96,6 +101,7 @@ export const DARK_CANVAS_STYLE: any = {
 export const TOPO_TERRAIN_STYLE: any = {
   version: 8,
   name: 'Darukaa Topo Terrain',
+  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
   sources: {
     'esri-topo': {
       type: 'raster',
@@ -133,12 +139,18 @@ export const FALLBACK_STYLES = {
 } as const
 
 /**
- * Resolves map style: uses Mapbox vector style if a real token is provided,
+ * Resolves map style: uses Mapbox vector style if custom user token provided,
  * otherwise falls back to true high-res Esri satellite & Carto basemaps.
  */
 export const getResolvedMapStyle = (styleKey: MapStyleKey = 'satellite'): any => {
-  const token = getMapboxToken()
-  if (token && token.length > 20 && !token.includes('demo')) {
+  const envToken =
+    import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || import.meta.env.MAPBOX_ACCESS_TOKEN || ''
+  if (
+    envToken &&
+    envToken.length > 25 &&
+    !envToken.includes('demo') &&
+    envToken.startsWith('pk.')
+  ) {
     return MAP_STYLES[styleKey] || MAP_STYLES.satellite
   }
   return FALLBACK_STYLES[styleKey] || REAL_SATELLITE_STYLE

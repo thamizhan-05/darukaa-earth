@@ -16,12 +16,13 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
-// Handle 401 — clear tokens and redirect to login
+// Handle 401 — clear tokens and redirect to login only if not a portfolio demo session
 apiClient.interceptors.response.use(
   (res) => res,
   async (error) => {
+    const isDemo = localStorage.getItem('is_demo_session') === 'true'
     const status = error.response?.status
-    if (status === 401) {
+    if (status === 401 && !isDemo) {
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
       window.location.href = '/login'

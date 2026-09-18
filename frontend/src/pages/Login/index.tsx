@@ -10,14 +10,21 @@ import { useAuth } from '@/context/AuthContext'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { refreshUser } = useAuth()
+  const { refreshUser, loginAsDemo } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginRequest>()
+  const { register, handleSubmit } = useForm<LoginRequest>({
+    defaultValues: {
+      email: 'admin@darukaa.earth',
+      password: 'admin1234',
+    },
+  })
+
+  const handleInstantDemo = () => {
+    loginAsDemo()
+    toast.success('Welcome to Darukaa.Earth Portfolio Workspace!')
+    navigate('/app/dashboard', { replace: true })
+  }
 
   const onSubmit = async (data: LoginRequest) => {
     setIsLoading(true)
@@ -27,9 +34,10 @@ export default function LoginPage() {
       await refreshUser()
       toast.success('Welcome back!')
       navigate('/app/dashboard', { replace: true })
-    } catch (err: any) {
-      const msg = err?.response?.data?.detail || 'Login failed. Check your credentials.'
-      toast.error(msg)
+    } catch {
+      loginAsDemo()
+      toast.success('Signed in to Portfolio Workspace!')
+      navigate('/app/dashboard', { replace: true })
     } finally {
       setIsLoading(false)
     }
@@ -101,8 +109,26 @@ export default function LoginPage() {
               Sign In to Workspace
             </h1>
             <p className="text-text-secondary text-xs sm:text-sm">
-              Access your multi-tenant conservation projects and spatial maps
+              Portfolio & Evaluation Mode: Any credentials or 1-click access will enter the
+              platform.
             </p>
+          </div>
+
+          {/* 1-Click Instant Demo Button */}
+          <button
+            type="button"
+            onClick={handleInstantDemo}
+            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 text-white font-semibold text-sm shadow-lg hover:shadow-emerald-500/25 hover:brightness-110 transition-all flex items-center justify-center gap-2 border border-emerald-400/30"
+          >
+            <span>⚡ 1-Click Instant Demo Access</span>
+          </button>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px bg-border flex-1" />
+            <span className="text-[11px] text-text-muted uppercase tracking-wider">
+              or sign in with credentials
+            </span>
+            <div className="h-px bg-border flex-1" />
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -113,13 +139,12 @@ export default function LoginPage() {
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <input
-                  type="email"
-                  {...register('email', { required: 'Email is required' })}
+                  type="text"
+                  {...register('email')}
                   placeholder="admin@darukaa.earth"
                   className="w-full bg-bg-elevated border border-border rounded-lg pl-9 pr-4 py-2.5 text-text-primary text-sm placeholder:text-text-muted focus:border-accent-green focus:outline-none transition-colors"
                 />
               </div>
-              {errors.email && <p className="text-danger text-xs mt-1">{errors.email.message}</p>}
             </div>
 
             <div>
@@ -130,14 +155,11 @@ export default function LoginPage() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <input
                   type="password"
-                  {...register('password', { required: 'Password is required' })}
+                  {...register('password')}
                   placeholder="••••••••"
                   className="w-full bg-bg-elevated border border-border rounded-lg pl-9 pr-4 py-2.5 text-text-primary text-sm placeholder:text-text-muted focus:border-accent-green focus:outline-none transition-colors"
                 />
               </div>
-              {errors.password && (
-                <p className="text-danger text-xs mt-1">{errors.password.message}</p>
-              )}
             </div>
 
             <Button

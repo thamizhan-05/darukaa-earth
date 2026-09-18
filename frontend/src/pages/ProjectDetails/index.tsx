@@ -277,7 +277,7 @@ export default function ProjectDetailsPage() {
             </div>
 
             {/* Map */}
-            <div className="lg:col-span-3 card overflow-hidden">
+            <div className="lg:col-span-3 card overflow-hidden h-96 min-h-[380px]">
               <MapGL
                 ref={mapRef}
                 features={mapFeatures}

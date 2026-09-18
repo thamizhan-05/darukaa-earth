@@ -197,82 +197,100 @@ export const MapGL = forwardRef<MapGLHandle, MapGLProps>(
         }
 
         // 2. Sites Fill Layer
-        map.addLayer({
-          id: 'sites-fill',
-          type: 'fill',
-          source: activeSource,
-          ...sourceLayerProp,
-          paint: {
-            'fill-color': [
-              'case',
-              ['==', ['get', 'status'], 'ACTIVE'],
-              'rgba(63, 185, 80, 0.25)',
-              ['==', ['get', 'status'], 'UNDER_REVIEW'],
-              'rgba(210, 153, 34, 0.25)',
-              'rgba(140, 148, 158, 0.18)',
-            ],
-            'fill-opacity': [
-              'case',
-              ['boolean', ['feature-state', 'hover'], false],
-              0.65,
-              ['boolean', ['feature-state', 'selected'], false],
-              0.5,
-              0.3,
-            ],
-          },
-        })
+        try {
+          if (!map.getLayer('sites-fill')) {
+            map.addLayer({
+              id: 'sites-fill',
+              type: 'fill',
+              source: activeSource,
+              ...sourceLayerProp,
+              paint: {
+                'fill-color': [
+                  'case',
+                  ['==', ['get', 'status'], 'ACTIVE'],
+                  'rgba(63, 185, 80, 0.25)',
+                  ['==', ['get', 'status'], 'UNDER_REVIEW'],
+                  'rgba(210, 153, 34, 0.25)',
+                  'rgba(140, 148, 158, 0.18)',
+                ],
+                'fill-opacity': [
+                  'case',
+                  ['boolean', ['feature-state', 'hover'], false],
+                  0.65,
+                  ['boolean', ['feature-state', 'selected'], false],
+                  0.5,
+                  0.3,
+                ],
+              },
+            })
+          }
+        } catch (err) {
+          console.warn('MapGL: could not add sites-fill layer', err)
+        }
 
         // 3. Sites Outline Layer
-        map.addLayer({
-          id: 'sites-outline',
-          type: 'line',
-          source: activeSource,
-          ...sourceLayerProp,
-          layout: {
-            visibility: showOutlines ? 'visible' : 'none',
-          },
-          paint: {
-            'line-color': [
-              'case',
-              ['==', ['get', 'status'], 'ACTIVE'],
-              '#3FB950',
-              ['==', ['get', 'status'], 'UNDER_REVIEW'],
-              '#D29922',
-              '#8B949E',
-            ],
-            'line-width': [
-              'case',
-              ['boolean', ['feature-state', 'selected'], false],
-              3.2,
-              ['boolean', ['feature-state', 'hover'], false],
-              2.4,
-              1.6,
-            ],
-            'line-opacity': 0.95,
-          },
-        })
+        try {
+          if (!map.getLayer('sites-outline')) {
+            map.addLayer({
+              id: 'sites-outline',
+              type: 'line',
+              source: activeSource,
+              ...sourceLayerProp,
+              layout: {
+                visibility: showOutlines ? 'visible' : 'none',
+              },
+              paint: {
+                'line-color': [
+                  'case',
+                  ['==', ['get', 'status'], 'ACTIVE'],
+                  '#3FB950',
+                  ['==', ['get', 'status'], 'UNDER_REVIEW'],
+                  '#D29922',
+                  '#8B949E',
+                ],
+                'line-width': [
+                  'case',
+                  ['boolean', ['feature-state', 'selected'], false],
+                  3.2,
+                  ['boolean', ['feature-state', 'hover'], false],
+                  2.4,
+                  1.6,
+                ],
+                'line-opacity': 0.95,
+              },
+            })
+          }
+        } catch (err) {
+          console.warn('MapGL: could not add sites-outline layer', err)
+        }
 
         // 4. Sites Label Layer (Symbol)
-        map.addLayer({
-          id: 'sites-labels',
-          type: 'symbol',
-          source: activeSource,
-          ...sourceLayerProp,
-          minzoom: 6,
-          layout: {
-            visibility: showLabels ? 'visible' : 'none',
-            'text-field': ['get', 'name'],
-            'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-            'text-size': 12,
-            'text-offset': [0, 0.6],
-            'text-anchor': 'top',
-          },
-          paint: {
-            'text-color': '#F0F6FC',
-            'text-halo-color': '#0D1117',
-            'text-halo-width': 1.5,
-          },
-        })
+        try {
+          if (!map.getLayer('sites-labels')) {
+            map.addLayer({
+              id: 'sites-labels',
+              type: 'symbol',
+              source: activeSource,
+              ...sourceLayerProp,
+              minzoom: 6,
+              layout: {
+                visibility: showLabels ? 'visible' : 'none',
+                'text-field': ['get', 'name'],
+                'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                'text-size': 12,
+                'text-offset': [0, 0.6],
+                'text-anchor': 'top',
+              },
+              paint: {
+                'text-color': '#F0F6FC',
+                'text-halo-color': '#0D1117',
+                'text-halo-width': 1.5,
+              },
+            })
+          }
+        } catch (err) {
+          console.warn('MapGL: skipped symbol label layer:', err)
+        }
 
         // 5. NASA FIRMS Active Wildfire Anomalies Layer
         const fireFeatures = fires.map((f, idx) => ({
@@ -379,8 +397,30 @@ export const MapGL = forwardRef<MapGLHandle, MapGLProps>(
       map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left')
 
       map.on('load', () => {
-        setupLayers(map, features, wildfires)
+        try {
+          map.resize()
+          setupLayers(map, features, wildfires)
+        } catch (e) {
+          console.warn('MapGL setupLayers on load notice:', e)
+        }
       })
+
+      map.on('error', (e) => {
+        console.warn('Mapbox GL notice:', (e as any)?.error?.message || e)
+      })
+
+      // Multiple resize passes to guarantee canvas matches container after CSS layout renders
+      const t1 = setTimeout(() => map.resize(), 150)
+      const t2 = setTimeout(() => map.resize(), 600)
+      const t3 = setTimeout(() => map.resize(), 1500)
+
+      let resizeObserver: ResizeObserver | null = null
+      if (containerRef.current && typeof ResizeObserver !== 'undefined') {
+        resizeObserver = new ResizeObserver(() => {
+          map.resize()
+        })
+        resizeObserver.observe(containerRef.current)
+      }
 
       // Hover interaction on sites
       map.on('mousemove', 'sites-fill', (e) => {
@@ -541,6 +581,10 @@ export const MapGL = forwardRef<MapGLHandle, MapGLProps>(
 
       mapRef.current = map
       return () => {
+        clearTimeout(t1)
+        clearTimeout(t2)
+        clearTimeout(t3)
+        resizeObserver?.disconnect()
         if (popupRef.current) popupRef.current.remove()
         map.remove()
         mapRef.current = null
@@ -606,8 +650,10 @@ export const MapGL = forwardRef<MapGLHandle, MapGLProps>(
     }, [selectedSiteId, features, renderingMode, mvtSourceUrl])
 
     return (
-      <div className={`relative w-full h-full rounded-lg overflow-hidden ${className}`}>
-        <div ref={containerRef} className="w-full h-full" />
+      <div
+        className={`relative w-full h-full min-h-[380px] rounded-lg overflow-hidden ${className}`}
+      >
+        <div ref={containerRef} className="w-full h-full min-h-[380px]" />
       </div>
     )
   },

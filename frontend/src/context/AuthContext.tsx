@@ -3,6 +3,7 @@ import type { User } from '@/types/auth'
 import { authService } from '@/services/auth'
 import { Organization } from '@/types/analytics'
 import apiClient from '@/services/api'
+import { DEMO_USER, DEMO_ORGS } from '@/services/demoData'
 
 interface AuthContextValue {
   user: User | null
@@ -13,6 +14,7 @@ interface AuthContextValue {
   setActiveOrg: (org: Organization) => void
   logout: () => void
   refreshUser: () => Promise<void>
+  loginAsDemo: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -26,6 +28,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUserAndOrgs = useCallback(async () => {
     const token = authService.getAccessToken()
     if (!token) {
+      // Auto-initialize portfolio demo session so reviewers and visitors enter immediately
+      authService.loginAsDemo()
+      setUser(DEMO_USER)
+      setOrganizations(DEMO_ORGS)
+      setActiveOrg(DEMO_ORGS[0])
       setIsLoading(false)
       return
     }
@@ -34,18 +41,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         authService.me(),
         apiClient.get<Organization[]>('/organizations').then((r) => r.data),
       ])
-      setUser(userData)
-      setOrganizations(orgsData)
-      if (orgsData.length > 0) {
-        const saved = localStorage.getItem('active_org_id')
-        const found = saved ? orgsData.find((o) => o.id === saved) : null
-        setActiveOrg(found || orgsData[0])
-      }
+      setUser(userData || DEMO_USER)
+      setOrganizations(orgsData?.length ? orgsData : DEMO_ORGS)
+      const currentOrgs = orgsData?.length ? orgsData : DEMO_ORGS
+      const saved = localStorage.getItem('active_org_id')
+      const found = saved ? currentOrgs.find((o) => o.id === saved) : null
+      setActiveOrg(found || currentOrgs[0])
     } catch {
-      authService.clearTokens()
+      // Graceful portfolio fallback
+      setUser(DEMO_USER)
+      setOrganizations(DEMO_ORGS)
+      setActiveOrg(DEMO_ORGS[0])
     } finally {
       setIsLoading(false)
     }
+  }, [])
+
+  const loginAsDemo = useCallback(() => {
+    authService.loginAsDemo()
+    setUser(DEMO_USER)
+    setOrganizations(DEMO_ORGS)
+    setActiveOrg(DEMO_ORGS[0])
+    localStorage.setItem('active_org_id', DEMO_ORGS[0].id)
   }, [])
 
   useEffect(() => {
@@ -77,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setActiveOrg: handleSetActiveOrg,
         logout,
         refreshUser: fetchUserAndOrgs,
+        loginAsDemo,
       }}
     >
       {children}
