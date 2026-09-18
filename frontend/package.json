@@ -14,25 +14,26 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@mapbox/mapbox-gl-draw": "^1.4.3",
     "@tanstack/react-query": "^5.40.0",
     "@tanstack/react-query-devtools": "^5.40.0",
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
+    "clsx": "^2.1.1",
+    "darukaa-earth": "file:..",
     "date-fns": "^3.6.0",
+    "lucide-react": "^0.396.0",
     "mapbox-gl": "^3.4.0",
-    "@mapbox/mapbox-gl-draw": "^1.4.3",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.52.0",
-    "react-router-dom": "^6.24.0",
     "react-hot-toast": "^2.4.1",
-    "lucide-react": "^0.396.0",
-    "clsx": "^2.1.1"
+    "react-router-dom": "^6.24.0"
   },
   "devDependencies": {
-    "@types/mapbox-gl": "^3.1.0",
     "@types/mapbox__mapbox-gl-draw": "^1.4.6",
+    "@types/mapbox-gl": "^3.1.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.0",

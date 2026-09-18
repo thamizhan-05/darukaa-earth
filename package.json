@@ -4,6 +4,8 @@
   "description": "Darukaa.Earth — Geospatial Intelligence Platform for Carbon & Biodiversity",
   "private": true,
   "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "start": "npm --prefix frontend run preview",
     "prepare": "husky",
     "lint:frontend": "npm --prefix frontend run lint",
     "format:frontend": "npm --prefix frontend run format",
