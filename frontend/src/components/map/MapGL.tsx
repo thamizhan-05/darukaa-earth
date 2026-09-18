@@ -3,7 +3,12 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import type { SiteGeoJSONFeature } from '@/types/site'
 import type { WildfireAnomaly } from '@/services/satellite'
-import { getMapboxToken, getResolvedMapStyle, type MapStyleKey } from '@/config/mapbox'
+import {
+  getMapboxToken,
+  getResolvedMapStyle,
+  REAL_SATELLITE_STYLE,
+  type MapStyleKey,
+} from '@/config/mapbox'
 
 export interface MapGLHandle {
   flyTo: (coords: [number, number], zoom?: number) => void
@@ -406,7 +411,26 @@ export const MapGL = forwardRef<MapGLHandle, MapGLProps>(
       })
 
       map.on('error', (e) => {
-        console.warn('Mapbox GL notice:', (e as any)?.error?.message || e)
+        const errorMsg = (e as any)?.error?.message || ''
+        const errorStatus = (e as any)?.error?.status
+        console.warn('Mapbox GL notice:', errorMsg || e)
+        if (
+          errorStatus === 401 ||
+          errorStatus === 403 ||
+          errorMsg.includes('Unauthorized') ||
+          errorMsg.includes('Forbidden') ||
+          errorMsg.includes('Not Found') ||
+          errorMsg.includes('token')
+        ) {
+          console.warn(
+            'Mapbox token error: auto-switching to zero-token Esri High-Res Satellite basemap',
+          )
+          try {
+            map.setStyle(REAL_SATELLITE_STYLE)
+          } catch (err) {
+            console.error('Could not switch to fallback style:', err)
+          }
+        }
       })
 
       // Multiple resize passes to guarantee canvas matches container after CSS layout renders

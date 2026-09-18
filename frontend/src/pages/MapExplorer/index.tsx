@@ -443,7 +443,7 @@ export default function MapExplorerPage() {
         {/* Map Container & Interactive Site Card / Sidebar */}
         <div className="flex-1 flex gap-4 min-h-[520px]">
           {/* Main MapGL Canvas */}
-          <div className="flex-1 card overflow-hidden relative border border-border shadow-inner">
+          <div className="flex-1 card overflow-hidden relative border border-border shadow-inner min-h-[520px] h-full flex flex-col">
             <MapGL
               ref={mapRef}
               features={filteredFeatures}
@@ -455,6 +455,8 @@ export default function MapExplorerPage() {
               showOutlines={showOutlines}
               center={[76.5, 11.5]}
               zoom={7}
+              autoFit={true}
+              className="h-full min-h-[520px]"
               // Satellite raster pipeline
               rasterTileUrl={activeRasterUrl}
               rasterOpacity={satelliteOpacity}

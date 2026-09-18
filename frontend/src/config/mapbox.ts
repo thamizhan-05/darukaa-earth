@@ -3,14 +3,18 @@
  * Supports VITE_MAPBOX_ACCESS_TOKEN and MAPBOX_ACCESS_TOKEN environment variables.
  */
 export const getMapboxToken = (): string => {
-  const envToken =
+  const raw = (
     import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ||
     import.meta.env.MAPBOX_ACCESS_TOKEN ||
     (typeof globalThis !== 'undefined' && (globalThis as any).process?.env?.MAPBOX_ACCESS_TOKEN) ||
     ''
+  )
+    .toString()
+    .trim()
+    .replace(/^["']|["']$/g, '')
 
-  if (envToken && !envToken.includes('demo_public_token')) {
-    return envToken
+  if (raw && !raw.includes('demo_public_token')) {
+    return raw
   }
   return ''
 }
@@ -143,14 +147,8 @@ export const FALLBACK_STYLES = {
  * otherwise falls back to true high-res Esri satellite & Carto basemaps.
  */
 export const getResolvedMapStyle = (styleKey: MapStyleKey = 'satellite'): any => {
-  const envToken =
-    import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || import.meta.env.MAPBOX_ACCESS_TOKEN || ''
-  if (
-    envToken &&
-    envToken.length > 25 &&
-    !envToken.includes('demo') &&
-    envToken.startsWith('pk.')
-  ) {
+  const token = getMapboxToken()
+  if (token && token.length > 20 && token.startsWith('pk.')) {
     return MAP_STYLES[styleKey] || MAP_STYLES.satellite
   }
   return FALLBACK_STYLES[styleKey] || REAL_SATELLITE_STYLE

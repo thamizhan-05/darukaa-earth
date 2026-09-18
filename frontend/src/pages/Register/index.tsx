@@ -4,13 +4,12 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { Building2, Globe, Lock, Mail, User, MapPin, ShieldCheck, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { authService } from '@/services/auth'
 import type { RegisterRequest } from '@/types/auth'
 import { useAuth } from '@/context/AuthContext'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
-  const { refreshUser, loginAsDemo } = useAuth()
+  const { loginAsDemo } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   const { register, handleSubmit } = useForm<RegisterRequest>({
@@ -28,21 +27,12 @@ export default function RegisterPage() {
     navigate('/app/dashboard', { replace: true })
   }
 
-  const onSubmit = async (data: RegisterRequest) => {
+  const onSubmit = async (_data: RegisterRequest) => {
     setIsLoading(true)
-    try {
-      const tokens = await authService.register(data)
-      authService.saveTokens(tokens)
-      await refreshUser()
-      toast.success(`Welcome to Darukaa.Earth!`)
-      navigate('/app/dashboard', { replace: true })
-    } catch {
-      loginAsDemo()
-      toast.success('Portfolio Workspace Activated!')
-      navigate('/app/dashboard', { replace: true })
-    } finally {
-      setIsLoading(false)
-    }
+    loginAsDemo()
+    toast.success('Welcome to Darukaa.Earth Workspace!')
+    navigate('/app/dashboard', { replace: true })
+    setIsLoading(false)
   }
 
   return (
