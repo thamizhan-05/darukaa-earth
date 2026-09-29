@@ -12,6 +12,8 @@ import {
   Sparkles,
   SunMedium,
   Coins,
+  TrendingUp,
+  Users,
 } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
@@ -22,6 +24,8 @@ import { MapGL, type MapGLHandle } from '@/components/map/MapGL'
 import { AddSiteModal } from '@/components/sites/AddSiteModal'
 import { AnalyticsChart, CORE_METRIC_CONFIGS } from '@/components/analytics/AnalyticsChart'
 import { CarbonCreditEstimator } from '@/components/analytics/CarbonCreditEstimator'
+import { CounterfactualBaseline } from '@/components/analytics/CounterfactualBaseline'
+import { CommunityBenefitPortal } from '@/components/community/CommunityBenefitPortal'
 
 import { projectsService } from '@/services/projects'
 import { sitesService } from '@/services/sites'
@@ -32,7 +36,9 @@ export default function ProjectDetailsPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
   const mapRef = useRef<MapGLHandle>(null)
-  const [activeTab, setActiveTab] = useState<'sites' | 'analytics' | 'finance'>('sites')
+  const [activeTab, setActiveTab] = useState<
+    'sites' | 'analytics' | 'finance' | 'additionality' | 'community'
+  >('sites')
   const [showAddSite, setShowAddSite] = useState(false)
   const [selectedSite, setSelectedSite] = useState<string | null>(null)
   const [compMetric, setCompMetric] = useState<string>('CARBON_STOCK')
@@ -238,6 +244,30 @@ export default function ProjectDetailsPage() {
             <Coins className="w-4 h-4" />
             <span>Carbon Credit & VCM Yield</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('additionality')}
+            className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+              activeTab === 'additionality'
+                ? 'border-accent-emerald text-accent-emerald'
+                : 'border-transparent text-text-muted hover:text-text-secondary'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Additionality Baseline</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('community')}
+            className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+              activeTab === 'community'
+                ? 'border-accent-emerald text-accent-emerald'
+                : 'border-transparent text-text-muted hover:text-text-secondary'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Community & FPIC</span>
+          </button>
         </div>
 
         {/* Tab 1: Sites & Interactive Map */}
@@ -396,6 +426,23 @@ export default function ProjectDetailsPage() {
             areaHectares={analytics?.total_area_hectares || 3200}
             annualSequestrationRate={7.4}
             currentCarbonStock={192.5}
+          />
+        )}
+
+        {/* Tab 4: Additionality Baseline */}
+        {activeTab === 'additionality' && (
+          <CounterfactualBaseline
+            siteName={`${project.name} Regional Landscape`}
+            areaHectares={analytics?.total_area_hectares || 3200}
+            annualSequestrationRate={7.4}
+          />
+        )}
+
+        {/* Tab 5: Community Benefit & FPIC */}
+        {activeTab === 'community' && (
+          <CommunityBenefitPortal
+            siteName={`${project.name} Regional Landscape`}
+            areaHectares={analytics?.total_area_hectares || 3200}
           />
         )}
       </div>

@@ -24,13 +24,15 @@ import {
   HardDrive,
   RefreshCw,
   ExternalLink,
+  Webhook as WebhookIcon,
 } from 'lucide-react'
+import { WebhookManager } from '@/components/settings/WebhookManager'
 
 export default function SettingsPage() {
   const { user, activeOrg } = useAuth()
-  const [activeTab, setActiveTab] = useState<'profile' | 'database' | 'audit' | 'integrations'>(
-    'profile',
-  )
+  const [activeTab, setActiveTab] = useState<
+    'profile' | 'database' | 'audit' | 'webhooks' | 'integrations'
+  >('profile')
 
   // Audit Logs query
   const { data: auditLogs = [], isLoading: loadingLogs } = useQuery({
@@ -90,6 +92,7 @@ export default function SettingsPage() {
               { key: 'profile', label: 'Organization & Profile', icon: Building },
               { key: 'database', label: 'Database Explorer & SQL Console', icon: Database },
               { key: 'audit', label: 'System Audit Log', icon: History },
+              { key: 'webhooks', label: 'Webhooks & Automation', icon: WebhookIcon },
               { key: 'integrations', label: 'Data Providers & GIS', icon: Satellite },
             ] as const
           ).map(({ key, label, icon: Icon }) => (
@@ -553,7 +556,14 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* ── TAB 4: Integrations ────────────────────────────────────── */}
+        {/* ── TAB 4: Webhooks & Automation ────────────────────────── */}
+        {activeTab === 'webhooks' && (
+          <div className="animate-fade-in">
+            <WebhookManager />
+          </div>
+        )}
+
+        {/* ── TAB 5: Integrations ────────────────────────────────────── */}
         {activeTab === 'integrations' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
             <div className="card p-5 space-y-4">

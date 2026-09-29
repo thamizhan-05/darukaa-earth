@@ -18,8 +18,9 @@ import {
   TrendingUp,
   FileCheck2,
   ExternalLink,
+  Navigation,
+  Award,
 } from 'lucide-react'
-
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { KPICard } from '@/components/dashboard/KPICard'
@@ -32,6 +33,11 @@ import { CarbonCreditEstimator } from '@/components/analytics/CarbonCreditEstima
 import { MRVReportModal } from '@/components/analytics/MRVReportModal'
 import { AIEcologicalAnalyst } from '@/components/analytics/AIEcologicalAnalyst'
 import { TemporalSplitMap } from '@/components/map/TemporalSplitMap'
+import { FieldDataCollectorModal } from '@/components/field/FieldDataCollectorModal'
+import { CounterfactualBaseline } from '@/components/analytics/CounterfactualBaseline'
+import { CreditRetirementModal } from '@/components/carbon/CreditRetirementModal'
+import { AuditorSamplingGrid } from '@/components/audit/AuditorSamplingGrid'
+import { CommunityBenefitPortal } from '@/components/community/CommunityBenefitPortal'
 import { sitesService } from '@/services/sites'
 import { analyticsService } from '@/services/analytics'
 import type { SiteGeoJSONFeature } from '@/types/site'
@@ -39,10 +45,20 @@ import type { SiteGeoJSONFeature } from '@/types/site'
 export default function SiteDetailsPage() {
   const { projectId, siteId } = useParams<{ projectId: string; siteId: string }>()
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'analytics' | 'finance' | 'ai_copilot' | 'temporal' | 'observations'
+    | 'overview'
+    | 'analytics'
+    | 'finance'
+    | 'additionality'
+    | 'auditor_grid'
+    | 'community'
+    | 'ai_copilot'
+    | 'temporal'
+    | 'observations'
   >('overview')
   const [showAddObsModal, setShowAddObsModal] = useState(false)
   const [showMRVModal, setShowMRVModal] = useState(false)
+  const [showFieldLoggerModal, setShowFieldLoggerModal] = useState(false)
+  const [showRetirementModal, setShowRetirementModal] = useState(false)
   const [obsSearch, setObsSearch] = useState('')
   const [obsMetricFilter, setObsMetricFilter] = useState('ALL')
 
@@ -125,7 +141,25 @@ export default function SiteDetailsPage() {
         title={site.name}
         subtitle={`${site.area_hectares?.toFixed(2) || '—'} ha · PostGIS Calculated`}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              leftIcon={<Navigation className="w-3.5 h-3.5 text-accent-green" />}
+              onClick={() => setShowFieldLoggerModal(true)}
+              size="sm"
+            >
+              Field Patrol
+            </Button>
+
+            <Button
+              variant="outline"
+              leftIcon={<Award className="w-3.5 h-3.5 text-accent-purple" />}
+              onClick={() => setShowRetirementModal(true)}
+              size="sm"
+            >
+              Retire Credits
+            </Button>
+
             <Link
               to={`/verify/${site.id}`}
               target="_blank"
@@ -324,6 +358,9 @@ export default function SiteDetailsPage() {
               { key: 'overview', label: 'Overview' },
               { key: 'analytics', label: 'Analytics' },
               { key: 'finance', label: 'Carbon Finance' },
+              { key: 'additionality', label: 'Additionality Baseline' },
+              { key: 'auditor_grid', label: 'VVB Auditor Grid' },
+              { key: 'community', label: 'Community & FPIC' },
               { key: 'ai_copilot', label: 'AI Copilot' },
               { key: 'temporal', label: 'Temporal Change' },
               { key: 'observations', label: 'Observations' },
@@ -535,7 +572,26 @@ export default function SiteDetailsPage() {
           />
         )}
 
-        {/* Tab 4: AI Ecological Copilot */}
+        {/* Tab 4: Dynamic Counterfactual Baseline */}
+        {activeTab === 'additionality' && (
+          <CounterfactualBaseline
+            siteName={site.name}
+            areaHectares={site.area_hectares || 1250}
+            annualSequestrationRate={seq?.current ? Number(seq.current) : 7.4}
+          />
+        )}
+
+        {/* Tab 5: VVB Auditor Sampling Grid */}
+        {activeTab === 'auditor_grid' && (
+          <AuditorSamplingGrid siteName={site.name} areaHectares={site.area_hectares || 1250} />
+        )}
+
+        {/* Tab 6: Community Benefit & FPIC Portal */}
+        {activeTab === 'community' && (
+          <CommunityBenefitPortal siteName={site.name} areaHectares={site.area_hectares || 1250} />
+        )}
+
+        {/* Tab 7: AI Ecological Copilot */}
         {activeTab === 'ai_copilot' && (
           <AIEcologicalAnalyst site={site} analytics={analytics} envContext={envContext} />
         )}
@@ -710,6 +766,26 @@ export default function SiteDetailsPage() {
           site={site}
           observations={observations}
           onClose={() => setShowMRVModal(false)}
+        />
+      )}
+
+      {showFieldLoggerModal && (
+        <FieldDataCollectorModal
+          siteId={site.id}
+          siteName={site.name}
+          onClose={() => setShowFieldLoggerModal(false)}
+          onSynced={() => {
+            refetchAnalytics()
+            refetchObservations()
+          }}
+        />
+      )}
+
+      {showRetirementModal && (
+        <CreditRetirementModal
+          siteId={site.id}
+          siteName={site.name}
+          onClose={() => setShowRetirementModal(false)}
         />
       )}
     </AppShell>
