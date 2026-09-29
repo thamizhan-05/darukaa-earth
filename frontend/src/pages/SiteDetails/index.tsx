@@ -16,7 +16,10 @@ import {
   Bug,
   SunMedium,
   TrendingUp,
+  FileCheck2,
+  ExternalLink,
 } from 'lucide-react'
+
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
 import { KPICard } from '@/components/dashboard/KPICard'
@@ -25,14 +28,21 @@ import { Button } from '@/components/ui/Button'
 import { MapGL } from '@/components/map/MapGL'
 import { AddObservationModal } from '@/components/observations/AddObservationModal'
 import { AnalyticsChart, CORE_METRIC_CONFIGS } from '@/components/analytics/AnalyticsChart'
+import { CarbonCreditEstimator } from '@/components/analytics/CarbonCreditEstimator'
+import { MRVReportModal } from '@/components/analytics/MRVReportModal'
+import { AIEcologicalAnalyst } from '@/components/analytics/AIEcologicalAnalyst'
+import { TemporalSplitMap } from '@/components/map/TemporalSplitMap'
 import { sitesService } from '@/services/sites'
 import { analyticsService } from '@/services/analytics'
 import type { SiteGeoJSONFeature } from '@/types/site'
 
 export default function SiteDetailsPage() {
   const { projectId, siteId } = useParams<{ projectId: string; siteId: string }>()
-  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'observations'>('overview')
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'analytics' | 'finance' | 'ai_copilot' | 'temporal' | 'observations'
+  >('overview')
   const [showAddObsModal, setShowAddObsModal] = useState(false)
+  const [showMRVModal, setShowMRVModal] = useState(false)
   const [obsSearch, setObsSearch] = useState('')
   const [obsMetricFilter, setObsMetricFilter] = useState('ALL')
 
@@ -115,13 +125,34 @@ export default function SiteDetailsPage() {
         title={site.name}
         subtitle={`${site.area_hectares?.toFixed(2) || '—'} ha · PostGIS Calculated`}
         actions={
-          <Button
-            leftIcon={<Plus className="w-4 h-4" />}
-            onClick={() => setShowAddObsModal(true)}
-            size="sm"
-          >
-            Add Observation
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/verify/${site.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline flex items-center gap-1.5 text-xs py-1.5 px-3"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-accent-emerald" />
+              <span>Proof of Nature</span>
+            </Link>
+
+            <Button
+              variant="outline"
+              leftIcon={<FileCheck2 className="w-4 h-4 text-accent-emerald" />}
+              onClick={() => setShowMRVModal(true)}
+              size="sm"
+            >
+              MRV Report
+            </Button>
+
+            <Button
+              leftIcon={<Plus className="w-4 h-4" />}
+              onClick={() => setShowAddObsModal(true)}
+              size="sm"
+            >
+              Add Observation
+            </Button>
+          </div>
         }
       />
 
@@ -287,18 +318,27 @@ export default function SiteDetailsPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-border">
-          {(['overview', 'analytics', 'observations'] as const).map((tab) => (
+        <div className="flex gap-1 border-b border-border overflow-x-auto">
+          {(
+            [
+              { key: 'overview', label: 'Overview' },
+              { key: 'analytics', label: 'Analytics' },
+              { key: 'finance', label: 'Carbon Finance' },
+              { key: 'ai_copilot', label: 'AI Copilot' },
+              { key: 'temporal', label: 'Temporal Change' },
+              { key: 'observations', label: 'Observations' },
+            ] as const
+          ).map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
-                activeTab === tab
-                  ? 'border-accent-green text-accent-green'
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-4 py-2.5 text-xs sm:text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
+                activeTab === tab.key
+                  ? 'border-accent-emerald text-accent-emerald'
                   : 'border-transparent text-text-muted hover:text-text-secondary'
               }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -482,11 +522,35 @@ export default function SiteDetailsPage() {
             isSynthetic={analytics?.is_synthetic ?? true}
             dataSourceNote={analytics?.data_source_note}
             title={`${site.name} — Multi-Spectral Ecological Intelligence`}
-            subtitle="Interactive historical time-series curves, statistical boundaries, and trend calculations"
           />
         )}
 
-        {/* Tab 3: Observations Table with Filters */}
+        {/* Tab 3: Carbon Credit Issuance & Financial Estimator */}
+        {activeTab === 'finance' && (
+          <CarbonCreditEstimator
+            siteName={site.name}
+            areaHectares={site.area_hectares || 1250}
+            annualSequestrationRate={seq?.current ? Number(seq.current) : 7.2}
+            currentCarbonStock={cs?.current ? Number(cs.current) : 190.4}
+          />
+        )}
+
+        {/* Tab 4: AI Ecological Copilot */}
+        {activeTab === 'ai_copilot' && (
+          <AIEcologicalAnalyst site={site} analytics={analytics} envContext={envContext} />
+        )}
+
+        {/* Tab 5: Temporal Change Detection */}
+        {activeTab === 'temporal' && (
+          <TemporalSplitMap
+            siteName={site.name}
+            areaHectares={site.area_hectares || 1250}
+            baselineYear={2021}
+            currentYear={2026}
+          />
+        )}
+
+        {/* Tab 6: Observations Table with Filters */}
         {activeTab === 'observations' && (
           <div className="card overflow-hidden space-y-4">
             {/* Observation Filters Header */}
@@ -638,6 +702,14 @@ export default function SiteDetailsPage() {
             refetchAnalytics()
             refetchObservations()
           }}
+        />
+      )}
+
+      {showMRVModal && (
+        <MRVReportModal
+          site={site}
+          observations={observations}
+          onClose={() => setShowMRVModal(false)}
         />
       )}
     </AppShell>

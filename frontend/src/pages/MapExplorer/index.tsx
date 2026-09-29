@@ -33,7 +33,11 @@ import {
   Flame,
   Activity,
   Zap,
+  SlidersHorizontal,
+  ExternalLink,
+  X,
 } from 'lucide-react'
+import { TemporalSplitMap } from '@/components/map/TemporalSplitMap'
 
 const STATUS_FILTERS = ['ALL', 'ACTIVE', 'UNDER_REVIEW', 'INACTIVE'] as const
 
@@ -50,6 +54,7 @@ export default function MapExplorerPage() {
   const [selectedSite, setSelectedSite] = useState<SiteGeoJSONFeature | null>(null)
   const [showLabels, setShowLabels] = useState(true)
   const [showOutlines, setShowOutlines] = useState(true)
+  const [showTemporalModal, setShowTemporalModal] = useState(false)
 
   // Satellite Raster Pipeline state
   const [enableSatelliteOverlay, setEnableSatelliteOverlay] = useState(false)
@@ -780,6 +785,27 @@ export default function MapExplorerPage() {
                 </div>
 
                 <div className="pt-3 border-t border-border flex flex-col gap-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      leftIcon={<SlidersHorizontal className="w-3.5 h-3.5 text-accent-cyan" />}
+                      onClick={() => setShowTemporalModal(true)}
+                      className="w-full text-xs justify-center"
+                    >
+                      Compare
+                    </Button>
+                    <Link
+                      to={`/verify/${selectedSite.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-outline flex items-center justify-center gap-1.5 text-xs py-1 px-2"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-accent-emerald" />
+                      <span>Verify</span>
+                    </Link>
+                  </div>
+
                   <Button
                     size="sm"
                     variant="outline"
@@ -880,6 +906,32 @@ export default function MapExplorerPage() {
           onClose={() => setIsAddModalOpen(false)}
           onSuccess={handleSiteCreated}
         />
+      )}
+
+      {/* Temporal Comparison Modal */}
+      {showTemporalModal && selectedSite && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowTemporalModal(false)}
+          />
+          <div className="relative w-full max-w-4xl z-10 animate-slide-up">
+            <div className="absolute top-4 right-4 z-20">
+              <button
+                onClick={() => setShowTemporalModal(false)}
+                className="p-2 rounded-full bg-black/60 text-white hover:bg-black/90 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <TemporalSplitMap
+              siteName={selectedSite.properties.name}
+              areaHectares={selectedSite.properties.area_hectares}
+              baselineYear={2021}
+              currentYear={2026}
+            />
+          </div>
+        </div>
       )}
     </AppShell>
   )

@@ -11,6 +11,7 @@ import {
   Leaf,
   Sparkles,
   SunMedium,
+  Coins,
 } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
@@ -20,6 +21,8 @@ import { KPICard } from '@/components/dashboard/KPICard'
 import { MapGL, type MapGLHandle } from '@/components/map/MapGL'
 import { AddSiteModal } from '@/components/sites/AddSiteModal'
 import { AnalyticsChart, CORE_METRIC_CONFIGS } from '@/components/analytics/AnalyticsChart'
+import { CarbonCreditEstimator } from '@/components/analytics/CarbonCreditEstimator'
+
 import { projectsService } from '@/services/projects'
 import { sitesService } from '@/services/sites'
 import { analyticsService } from '@/services/analytics'
@@ -29,7 +32,7 @@ export default function ProjectDetailsPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
   const mapRef = useRef<MapGLHandle>(null)
-  const [activeTab, setActiveTab] = useState<'sites' | 'analytics'>('sites')
+  const [activeTab, setActiveTab] = useState<'sites' | 'analytics' | 'finance'>('sites')
   const [showAddSite, setShowAddSite] = useState(false)
   const [selectedSite, setSelectedSite] = useState<string | null>(null)
   const [compMetric, setCompMetric] = useState<string>('CARBON_STOCK')
@@ -204,7 +207,7 @@ export default function ProjectDetailsPage() {
             onClick={() => setActiveTab('sites')}
             className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px flex items-center gap-2 ${
               activeTab === 'sites'
-                ? 'border-accent-green text-accent-green'
+                ? 'border-accent-emerald text-accent-emerald'
                 : 'border-transparent text-text-muted hover:text-text-secondary'
             }`}
           >
@@ -216,12 +219,24 @@ export default function ProjectDetailsPage() {
             onClick={() => setActiveTab('analytics')}
             className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px flex items-center gap-2 ${
               activeTab === 'analytics'
-                ? 'border-accent-green text-accent-green'
+                ? 'border-accent-emerald text-accent-emerald'
                 : 'border-transparent text-text-muted hover:text-text-secondary'
             }`}
           >
             <BarChart3 className="w-4 h-4" />
             <span>Project Environmental Analytics</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('finance')}
+            className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px flex items-center gap-2 ${
+              activeTab === 'finance'
+                ? 'border-accent-emerald text-accent-emerald'
+                : 'border-transparent text-text-muted hover:text-text-secondary'
+            }`}
+          >
+            <Coins className="w-4 h-4" />
+            <span>Carbon Credit & VCM Yield</span>
           </button>
         </div>
 
@@ -372,6 +387,16 @@ export default function ProjectDetailsPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Tab 3: Carbon Credit Issuance & Financial Yield */}
+        {activeTab === 'finance' && (
+          <CarbonCreditEstimator
+            siteName={`${project.name} Portfolio`}
+            areaHectares={analytics?.total_area_hectares || 3200}
+            annualSequestrationRate={7.4}
+            currentCarbonStock={192.5}
+          />
         )}
       </div>
 

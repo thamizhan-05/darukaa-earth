@@ -12,6 +12,7 @@ const SiteDetails = lazy(() => import('@/pages/SiteDetails'))
 const MapExplorer = lazy(() => import('@/pages/MapExplorer'))
 const Analytics = lazy(() => import('@/pages/Analytics'))
 const Settings = lazy(() => import('@/pages/Settings'))
+const PublicVerification = lazy(() => import('@/pages/PublicVerification'))
 
 const PageLoader = () => (
   <div className="min-h-screen bg-bg-base flex items-center justify-center">
@@ -23,6 +24,8 @@ const router = createBrowserRouter([
   { path: '/', element: <Landing /> },
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
+  { path: '/verify/:siteId', element: <PublicVerification /> },
+
   {
     path: '/app',
     element: <ProtectedRoute />,
