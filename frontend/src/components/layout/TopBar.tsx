@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Bell, Menu, Activity } from 'lucide-react'
+import { Bell, Menu, Activity, Globe } from 'lucide-react'
 import { useUI } from '@/context/UIContext'
+import { useCurrency, SUPPORTED_CURRENCIES, type CurrencyCode } from '@/context/CurrencyContext'
 import { ThreatAlertDrawer } from './ThreatAlertDrawer'
 
 interface TopBarProps {
@@ -11,6 +12,7 @@ interface TopBarProps {
 
 export function TopBar({ title, subtitle, actions }: TopBarProps) {
   const { toggleMobileSidebar } = useUI()
+  const { currency, setCurrency } = useCurrency()
   const [showThreatDrawer, setShowThreatDrawer] = useState(false)
 
   return (
@@ -42,6 +44,23 @@ export function TopBar({ title, subtitle, actions }: TopBarProps) {
           </div>
 
           {actions}
+
+          {/* Global Multi-Currency Switcher */}
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-bg-elevated/70 border border-border text-xs">
+            <Globe className="w-3.5 h-3.5 text-accent-green shrink-0" />
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
+              className="bg-transparent text-text-primary text-xs font-semibold focus:outline-none cursor-pointer pr-1"
+              title="Change Global Valuation Currency"
+            >
+              {Object.values(SUPPORTED_CURRENCIES).map((c) => (
+                <option key={c.code} value={c.code} className="bg-bg-surface text-text-primary">
+                  {c.code} ({c.symbol})
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Threat Alert Trigger */}
           <button

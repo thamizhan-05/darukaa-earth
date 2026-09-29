@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Sparkles, Bot, Flame, Droplets, Send, TreePine, ShieldAlert } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { useCurrency } from '@/context/CurrencyContext'
 
 import type { Site } from '@/types/site'
 import type { SiteAnalytics, EnvironmentalContext } from '@/types/analytics'
@@ -12,6 +13,7 @@ interface AIEcologicalAnalystProps {
 }
 
 export function AIEcologicalAnalyst({ site, analytics, envContext }: AIEcologicalAnalystProps) {
+  const { formatCurrency } = useCurrency()
   const [userQuery, setUserQuery] = useState('')
   const [messages, setMessages] = useState<
     Array<{ sender: 'user' | 'ai'; text: string; time: string }>
@@ -86,7 +88,7 @@ export function AIEcologicalAnalyst({ site, analytics, envContext }: AIEcologica
         reply = `Current Shannon-Wiener Biodiversity Index is ${bio.toFixed(2)} (Healthy). To reach >0.92, prioritize planting native fruiting understory species (Ficus and Syzygium) which foster avian seed dispersal and improve structural complexity.`
       } else if (q.includes('carbon') || q.includes('credit') || q.includes('revenue')) {
         const potentialRevenue = Math.round((site.area_hectares || 1200) * 7.2 * 20 * 24 * 0.85)
-        reply = `At an annual sequestration rate of ~7.2 tCO₂e/ha/yr over a 20-year crediting vintage at $24/credit (less 15% Verra permanence buffer), ${site.name} has an estimated gross tradeable carbon yield of ~$${potentialRevenue.toLocaleString()} USD.`
+        reply = `At an annual sequestration rate of ~7.2 tCO₂e/ha/yr over a 20-year crediting vintage at ${formatCurrency(24)}/credit (less 15% Verra permanence buffer), ${site.name} has an estimated gross tradeable carbon yield of ~${formatCurrency(potentialRevenue)}.`
       } else if (q.includes('recommend') || q.includes('plan') || q.includes('action')) {
         reply = `Key Actions: 1) Deploy soil moisture sensors along lower elevation gullies. 2) Enrich western edge corridors to mitigate canopy fragmentation. 3) Schedule ground-truth LiDAR or UAV multi-spectral pass before the upcoming monsoon season.`
       } else {

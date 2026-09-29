@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Users, HeartHandshake, ShieldCheck, CheckCircle2, Sparkles } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
+import { useCurrency } from '@/context/CurrencyContext'
 
 interface CommunityBenefitPortalProps {
   siteName: string
@@ -18,6 +19,7 @@ interface DisbursementItem {
 }
 
 export function CommunityBenefitPortal({ siteName, areaHectares }: CommunityBenefitPortalProps) {
+  const { formatCurrency, currencyDetails } = useCurrency()
   const [disbursements] = useState<DisbursementItem[]>([
     {
       id: 'disb-1',
@@ -88,7 +90,7 @@ export function CommunityBenefitPortal({ siteName, areaHectares }: CommunityBene
             Total Community Pool Disbursed
           </span>
           <span className="text-xl sm:text-2xl font-black text-accent-purple">
-            ${totalDisbursed.toLocaleString()} USD
+            {formatCurrency(totalDisbursed)}
           </span>
         </div>
       </div>
@@ -161,7 +163,7 @@ export function CommunityBenefitPortal({ siteName, areaHectares }: CommunityBene
                 <th className="py-2.5 px-3.5">Community Project Initiative</th>
                 <th className="py-2.5 px-3.5">Beneficiary Hamlet</th>
                 <th className="py-2.5 px-3.5">Date Disbursed</th>
-                <th className="py-2.5 px-3.5">Amount (USD)</th>
+                <th className="py-2.5 px-3.5">Amount ({currencyDetails.code})</th>
                 <th className="py-2.5 px-3.5 text-right">Status</th>
               </tr>
             </thead>
@@ -172,7 +174,7 @@ export function CommunityBenefitPortal({ siteName, areaHectares }: CommunityBene
                   <td className="py-2.5 px-3.5 text-text-muted">{d.beneficiaryCommunity}</td>
                   <td className="py-2.5 px-3.5 text-text-muted">{d.date}</td>
                   <td className="py-2.5 px-3.5 font-bold text-accent-purple font-mono">
-                    ${d.amountUsd.toLocaleString()}
+                    {formatCurrency(d.amountUsd)}
                   </td>
                   <td className="py-2.5 px-3.5 text-right">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-accent-green/15 text-accent-green">

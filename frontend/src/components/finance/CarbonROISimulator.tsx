@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { DollarSign, Download, Calendar, Percent } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
+import { useCurrency } from '@/context/CurrencyContext'
 import toast from 'react-hot-toast'
 
 interface CarbonROISimulatorProps {
@@ -15,6 +16,7 @@ export function CarbonROISimulator({
   areaHectares,
   defaultSequestrationRate = 7.4,
 }: CarbonROISimulatorProps) {
+  const { formatCurrency } = useCurrency()
   const [carbonPrice, setCarbonPrice] = useState<number>(28) // $28 / tCO2e
   const [sequestrationRate, setSequestrationRate] = useState<number>(defaultSequestrationRate)
   const [capexPerHa, setCapexPerHa] = useState<number>(140) // $140 / ha upfront
@@ -149,7 +151,7 @@ export function CarbonROISimulator({
         <div className="p-3.5 rounded-xl bg-bg-elevated/70 border border-border">
           <span className="text-[11px] text-text-muted block">10-Yr Net Present Value (NPV)</span>
           <span className="text-xl font-bold text-accent-green">
-            ${(financialModel.npv / 1000).toFixed(0)}k USD
+            {formatCurrency(financialModel.npv, { compact: true })}
           </span>
           <span className="text-[10px] text-text-muted block mt-0.5">
             Discounted at {discountRate}% WACC
@@ -175,7 +177,7 @@ export function CarbonROISimulator({
         <div className="p-3.5 rounded-xl bg-bg-elevated/70 border border-border">
           <span className="text-[11px] text-text-muted block">Total 10-Yr Net Profit</span>
           <span className="text-xl font-bold text-text-primary">
-            ${(financialModel.totalNet10Yr / 1000).toFixed(0)}k USD
+            {formatCurrency(financialModel.totalNet10Yr, { compact: true })}
           </span>
           <span className="text-[10px] text-text-muted block mt-0.5">Cumulative net margin</span>
         </div>
@@ -186,7 +188,9 @@ export function CarbonROISimulator({
         <div className="space-y-1.5">
           <div className="flex justify-between">
             <span className="text-text-secondary font-medium">Carbon Price</span>
-            <span className="font-bold text-text-primary font-mono">${carbonPrice} / tCO₂e</span>
+            <span className="font-bold text-text-primary font-mono">
+              {formatCurrency(carbonPrice)} / tCO₂e
+            </span>
           </div>
           <input
             type="range"
@@ -220,7 +224,9 @@ export function CarbonROISimulator({
         <div className="space-y-1.5">
           <div className="flex justify-between">
             <span className="text-text-secondary font-medium">Upfront CAPEX</span>
-            <span className="font-bold text-text-primary font-mono">${capexPerHa} / ha</span>
+            <span className="font-bold text-text-primary font-mono">
+              {formatCurrency(capexPerHa)} / ha
+            </span>
           </div>
           <input
             type="range"
@@ -236,7 +242,9 @@ export function CarbonROISimulator({
         <div className="space-y-1.5">
           <div className="flex justify-between">
             <span className="text-text-secondary font-medium">Annual MRV/OPEX</span>
-            <span className="font-bold text-text-primary font-mono">${opexPerHa} / ha/yr</span>
+            <span className="font-bold text-text-primary font-mono">
+              {formatCurrency(opexPerHa)} / ha/yr
+            </span>
           </div>
           <input
             type="range"
@@ -290,18 +298,19 @@ export function CarbonROISimulator({
                     <Calendar className="w-3 h-3 text-text-muted" /> Year {cf.year}
                   </td>
                   <td className="py-2 px-3.5 text-text-primary">
-                    ${cf.grossRevenue.toLocaleString()}
+                    {formatCurrency(cf.grossRevenue)}
                   </td>
-                  <td className="py-2 px-3.5 text-text-muted">-${cf.opex.toLocaleString()}</td>
+                  <td className="py-2 px-3.5 text-text-muted">-{formatCurrency(cf.opex)}</td>
                   <td className="py-2 px-3.5 font-bold text-accent-green">
-                    +${cf.netCashflow.toLocaleString()}
+                    +{formatCurrency(cf.netCashflow)}
                   </td>
                   <td
                     className={`py-2 px-3.5 text-right font-bold ${
                       cf.cumulativeNet >= 0 ? 'text-accent-green' : 'text-accent-amber'
                     }`}
                   >
-                    {cf.cumulativeNet >= 0 ? '+' : ''}${cf.cumulativeNet.toLocaleString()}
+                    {cf.cumulativeNet >= 0 ? '+' : '-'}
+                    {formatCurrency(Math.abs(cf.cumulativeNet))}
                   </td>
                 </tr>
               ))}

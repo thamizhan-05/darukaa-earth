@@ -9,6 +9,7 @@ import {
   Award,
   Users,
 } from 'lucide-react'
+import { useCurrency } from '@/context/CurrencyContext'
 
 interface CarbonCreditEstimatorProps {
   siteName: string
@@ -23,6 +24,7 @@ export function CarbonCreditEstimator({
   annualSequestrationRate = 6.8, // standard tropical/subtropical restoration average
   currentCarbonStock = 180,
 }: CarbonCreditEstimatorProps) {
+  const { formatCurrency } = useCurrency()
   const [creditingYears, setCreditingYears] = useState<number>(20)
   const [carbonPriceUsd, setCarbonPriceUsd] = useState<number>(24) // $24 / tCO2e VCM price
   const [bufferPoolPct, setBufferPoolPct] = useState<number>(15) // Verra non-permanence risk buffer
@@ -92,8 +94,7 @@ export function CarbonCreditEstimator({
             Estimated Net Value
           </span>
           <span className="text-xl sm:text-2xl font-black text-accent-emerald">
-            $
-            {calculations.netProjectRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            {formatCurrency(calculations.netProjectRevenue, { maximumFractionDigits: 0 })}
           </span>
         </div>
       </div>
@@ -117,7 +118,7 @@ export function CarbonCreditEstimator({
             <TrendingUp className="w-3.5 h-3.5 text-accent-cyan" />
           </div>
           <div className="text-lg font-bold text-text-primary">
-            ${Math.round(calculations.annualNetRevenue).toLocaleString()}
+            {formatCurrency(calculations.annualNetRevenue)}
           </div>
           <span className="text-[11px] text-text-muted">per year net cash flow</span>
         </div>
@@ -139,7 +140,7 @@ export function CarbonCreditEstimator({
             <Users className="w-3.5 h-3.5 text-accent-purple" />
           </div>
           <div className="text-lg font-bold text-accent-purple">
-            ${Math.round(calculations.communityFund).toLocaleString()}
+            {formatCurrency(calculations.communityFund)}
           </div>
           <span className="text-[11px] text-text-muted">Local restoration pool</span>
         </div>
@@ -179,7 +180,9 @@ export function CarbonCreditEstimator({
               <DollarSign className="w-3.5 h-3.5 text-accent-emerald" />
               Carbon Unit Price
             </span>
-            <span className="font-bold text-accent-emerald">${carbonPriceUsd} / tCO₂e</span>
+            <span className="font-bold text-accent-emerald">
+              {formatCurrency(carbonPriceUsd)} / tCO₂e
+            </span>
           </div>
           <input
             type="range"
@@ -191,9 +194,9 @@ export function CarbonCreditEstimator({
             className="w-full accent-accent-emerald cursor-pointer"
           />
           <div className="flex justify-between text-[10px] text-text-muted">
-            <span>$10 (Standard)</span>
-            <span>$30 (High Quality)</span>
-            <span>$60 (Removal)</span>
+            <span>{formatCurrency(10)} (Standard)</span>
+            <span>{formatCurrency(30)} (High Quality)</span>
+            <span>{formatCurrency(60)} (Removal)</span>
           </div>
         </div>
 
