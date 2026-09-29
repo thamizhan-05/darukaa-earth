@@ -26,6 +26,8 @@ import { AnalyticsChart, CORE_METRIC_CONFIGS } from '@/components/analytics/Anal
 import { CarbonCreditEstimator } from '@/components/analytics/CarbonCreditEstimator'
 import { CounterfactualBaseline } from '@/components/analytics/CounterfactualBaseline'
 import { CommunityBenefitPortal } from '@/components/community/CommunityBenefitPortal'
+import { CarbonROISimulator } from '@/components/finance/CarbonROISimulator'
+import { ReversalBufferPoolCalculator } from '@/components/analytics/ReversalBufferPoolCalculator'
 
 import { projectsService } from '@/services/projects'
 import { sitesService } from '@/services/sites'
@@ -419,14 +421,25 @@ export default function ProjectDetailsPage() {
           </div>
         )}
 
-        {/* Tab 3: Carbon Credit Issuance & Financial Yield */}
+        {/* Tab 3: Carbon Credit Issuance, Buffer Pool & Financial Yield */}
         {activeTab === 'finance' && (
-          <CarbonCreditEstimator
-            siteName={`${project.name} Portfolio`}
-            areaHectares={analytics?.total_area_hectares || 3200}
-            annualSequestrationRate={7.4}
-            currentCarbonStock={192.5}
-          />
+          <div className="space-y-6">
+            <CarbonCreditEstimator
+              siteName={`${project.name} Portfolio`}
+              areaHectares={analytics?.total_area_hectares || 3200}
+              annualSequestrationRate={7.4}
+              currentCarbonStock={192.5}
+            />
+            <ReversalBufferPoolCalculator
+              grossCredits={Math.round((analytics?.total_area_hectares || 3200) * 7.4)}
+              siteName={project.name}
+            />
+            <CarbonROISimulator
+              siteName={project.name}
+              areaHectares={analytics?.total_area_hectares || 3200}
+              defaultSequestrationRate={7.4}
+            />
+          </div>
         )}
 
         {/* Tab 4: Additionality Baseline */}

@@ -20,6 +20,7 @@ import {
   ExternalLink,
   Navigation,
   Award,
+  ShieldCheck,
 } from 'lucide-react'
 import { AppShell } from '@/components/layout/AppShell'
 import { TopBar } from '@/components/layout/TopBar'
@@ -38,6 +39,11 @@ import { CounterfactualBaseline } from '@/components/analytics/CounterfactualBas
 import { CreditRetirementModal } from '@/components/carbon/CreditRetirementModal'
 import { AuditorSamplingGrid } from '@/components/audit/AuditorSamplingGrid'
 import { CommunityBenefitPortal } from '@/components/community/CommunityBenefitPortal'
+import { EUDRComplianceModal } from '@/components/compliance/EUDRComplianceModal'
+import { ReversalBufferPoolCalculator } from '@/components/analytics/ReversalBufferPoolCalculator'
+import { CanopyLidarProfile } from '@/components/analytics/CanopyLidarProfile'
+import { CarbonROISimulator } from '@/components/finance/CarbonROISimulator'
+import { GeotaggedMediaGallery } from '@/components/map/GeotaggedMediaGallery'
 import { sitesService } from '@/services/sites'
 import { analyticsService } from '@/services/analytics'
 import type { SiteGeoJSONFeature } from '@/types/site'
@@ -48,9 +54,11 @@ export default function SiteDetailsPage() {
     | 'overview'
     | 'analytics'
     | 'finance'
+    | 'canopy_lidar'
     | 'additionality'
     | 'auditor_grid'
     | 'community'
+    | 'media_gallery'
     | 'ai_copilot'
     | 'temporal'
     | 'observations'
@@ -59,6 +67,7 @@ export default function SiteDetailsPage() {
   const [showMRVModal, setShowMRVModal] = useState(false)
   const [showFieldLoggerModal, setShowFieldLoggerModal] = useState(false)
   const [showRetirementModal, setShowRetirementModal] = useState(false)
+  const [showEUDRModal, setShowEUDRModal] = useState(false)
   const [obsSearch, setObsSearch] = useState('')
   const [obsMetricFilter, setObsMetricFilter] = useState('ALL')
 
@@ -158,6 +167,15 @@ export default function SiteDetailsPage() {
               size="sm"
             >
               Retire Credits
+            </Button>
+
+            <Button
+              variant="outline"
+              leftIcon={<ShieldCheck className="w-3.5 h-3.5 text-accent-green" />}
+              onClick={() => setShowEUDRModal(true)}
+              size="sm"
+            >
+              EUDR Compliance
             </Button>
 
             <Link
@@ -357,10 +375,12 @@ export default function SiteDetailsPage() {
             [
               { key: 'overview', label: 'Overview' },
               { key: 'analytics', label: 'Analytics' },
-              { key: 'finance', label: 'Carbon Finance' },
+              { key: 'finance', label: 'Carbon Finance & ROI' },
+              { key: 'canopy_lidar', label: 'NASA GEDI 3D LiDAR' },
               { key: 'additionality', label: 'Additionality Baseline' },
               { key: 'auditor_grid', label: 'VVB Auditor Grid' },
               { key: 'community', label: 'Community & FPIC' },
+              { key: 'media_gallery', label: 'Field Photos & Story' },
               { key: 'ai_copilot', label: 'AI Copilot' },
               { key: 'temporal', label: 'Temporal Change' },
               { key: 'observations', label: 'Observations' },
@@ -562,14 +582,33 @@ export default function SiteDetailsPage() {
           />
         )}
 
-        {/* Tab 3: Carbon Credit Issuance & Financial Estimator */}
+        {/* Tab 3: Carbon Credit Issuance, Buffer Pool & Financial Estimator */}
         {activeTab === 'finance' && (
-          <CarbonCreditEstimator
-            siteName={site.name}
-            areaHectares={site.area_hectares || 1250}
-            annualSequestrationRate={seq?.current ? Number(seq.current) : 7.2}
-            currentCarbonStock={cs?.current ? Number(cs.current) : 190.4}
-          />
+          <div className="space-y-6">
+            <CarbonCreditEstimator
+              siteName={site.name}
+              areaHectares={site.area_hectares || 1250}
+              annualSequestrationRate={seq?.current ? Number(seq.current) : 7.2}
+              currentCarbonStock={cs?.current ? Number(cs.current) : 190.4}
+            />
+            <ReversalBufferPoolCalculator
+              grossCredits={Math.round(
+                (site.area_hectares || 1250) * (seq?.current ? Number(seq.current) : 7.2),
+              )}
+              fireRiskLevel={envContext?.earth_observation?.fire_risk_level}
+              siteName={site.name}
+            />
+            <CarbonROISimulator
+              siteName={site.name}
+              areaHectares={site.area_hectares || 1250}
+              defaultSequestrationRate={seq?.current ? Number(seq.current) : 7.2}
+            />
+          </div>
+        )}
+
+        {/* Tab: NASA GEDI 3D Spaceborne LiDAR Canopy Structure */}
+        {activeTab === 'canopy_lidar' && (
+          <CanopyLidarProfile siteName={site.name} areaHectares={site.area_hectares || 1250} />
         )}
 
         {/* Tab 4: Dynamic Counterfactual Baseline */}
@@ -590,6 +629,9 @@ export default function SiteDetailsPage() {
         {activeTab === 'community' && (
           <CommunityBenefitPortal siteName={site.name} areaHectares={site.area_hectares || 1250} />
         )}
+
+        {/* Tab: Geotagged Field Media & Photo Storytelling Layer */}
+        {activeTab === 'media_gallery' && <GeotaggedMediaGallery siteName={site.name} />}
 
         {/* Tab 7: AI Ecological Copilot */}
         {activeTab === 'ai_copilot' && (
@@ -786,6 +828,15 @@ export default function SiteDetailsPage() {
           siteId={site.id}
           siteName={site.name}
           onClose={() => setShowRetirementModal(false)}
+        />
+      )}
+
+      {showEUDRModal && (
+        <EUDRComplianceModal
+          siteId={site.id}
+          siteName={site.name}
+          areaHectares={site.area_hectares || 1250}
+          onClose={() => setShowEUDRModal(false)}
         />
       )}
     </AppShell>
